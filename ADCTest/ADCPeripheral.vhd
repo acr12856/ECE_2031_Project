@@ -45,6 +45,7 @@ component LTC2308_ctrl
 		mosi     : out std_logic; -- Data out from this device, in to ADC
 		miso     : in  std_logic  -- Data out from ADC, in to this device
 	);
+	end component;
 	
 	-- creating an instance of the controller with a port map
 	ADC : LTC2308_ctrl
@@ -60,34 +61,55 @@ component LTC2308_ctrl
 		miso => miso
 	);
 	
+	
+	
+	-- declare signals from the component above
+	signal clk				:	STD_LOGIC;
+	signal nrst				:  STD_LOGIC;
+	signal start			:  STD_LOGIC;
+	signal busy				:  STD_LOGIC;
+	signal rx_data			:  STD_LOGIC_VECTOR(11 DOWNTO 0);
+	signal sclk				:  STD_LOGIC_VECTOR(11 DOWNTO 0);
+	signal conv				:  STD_LOGIC_VECTOR(11 DOWNTO 0);
+	signal mosi				:  STD_LOGIC_VECTOR(11 DOWNTO 0);
+	signal miso				:  STD_LOGIC_VECTOR(11 DOWNTO 0);
+	
 	-- create more signals based on what we need the peripheral to do
-	signal latched_SDI	: 	STD_LOGIC_VECTOR(11 DOWNTO 0)
-	signal latched_SDO	:  STD_LOGIC_VECTOR(11 DOWNTO 0)
+	signal latched_SDI	: 	STD_LOGIC_VECTOR(11 DOWNTO 0)	:= "00000000000";
+	signal latched_SDO	:  STD_LOGIC_VECTOR(11 DOWNTO 0);
 	
-	-- define a state machine to interact with controller and SCOMP
-	TYPE MODE_TYPE IS (IDLE, RUNNING);
-	signal mode				: MODE_TYPE; -- define a signal to control state
+	-- if we try to read from it, then read the data
+	PROCESS(clk)
+		if rising_edge(clk) then
+			if id_addr = '00011000000' then
+				digitalRes <= latched_SDO;
+			end if;
+		end if;
+	BEGIN	
+	END
 	
-	-- create a process block to define the peripheral
+	
+	-- if we try to write to the peripheral, write data to latched_SDO
 	PROCESS(clk)
 	BEGIN
-		-- write lines to make the controller sample data 
-		-- from ADC by toggling start and checking busy flag
-		-- check busy flag and update the data in MOSI
-		-- check busy flag and get data to update Latched SDO
-		
-	END
+		if rising_edge(clk) then
+			if io_addr = '00011000001' then
+				latched_SDI = io_data;
+			end if;
+		end if;
+	END 
 	
-	-- create a process block to define the read instruction of SCOMP
+	
+	-- if busy flag is on, then start a new conversation and latched the previous values
 	PROCESS(clk, nrst, busy)
-		--  nrst is on but busy is on dont reset, else reset
-		-- if IO_READ is true return data from latched,SDO at datares
+		if rising_edge(clk) then
+			if busy = '0' then
+				latched_SDO <= miso if nrst = '1' else "00000000000";
+				mosi<= latched_SDI;
+				start = '1'
+			end if;
+		end if;
 	BEGIN
-	END
-	-- create a process to define the write instruction of the SCOMP
-	PROCESS(clk, nrst, busy)
-	BEGIN
-		-- if nrst is on but busy is on dont reset, else reset
-		-- if IO_WRITE is true rewrite data in latched_SDO
+	
 	END
 END arch;
