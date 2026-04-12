@@ -17,7 +17,7 @@ entity ADCPeripheral IS
 		io_addr 		: IN STD_LOGIC_VECTOR(10 DOWNTO 0); -- address
 		io_write		: IN STD_LOGIC; -- write enable to set SDI config
 		io_data 		: IN STD_LOGIC_VECTOR(11 DOWNTO 0); -- io_data config
-		resetn  		: IN STD_LOGIC; -- reset signal
+		nrst  		: IN STD_LOGIC; -- reset signal
 		clk	  		: IN STD_LOGIC; -- clock signal
 		digitalRes	: OUT STD_LOGIC_VECTOR(11 DOWNTO 0) -- resolution of the peripheral
 	);
@@ -47,7 +47,21 @@ component LTC2308_ctrl
 	);
 	end component;
 	
-	-- creating an instance of the controller with a port map
+	-- declare signals from the component above
+	signal start 			:  STD_LOGIC;
+	signal busy				:  STD_LOGIC;
+	signal rx_data			:  STD_LOGIC_VECTOR(11 DOWNTO 0);
+	signal sclk				:  STD_LOGIC;
+	signal conv				:  STD_LOGIC;
+	signal mosi				:  STD_LOGIC;
+	signal miso				:  STD_LOGIC;
+	
+	-- create more signals based on what we need the peripheral to do
+	signal latched_SDI	: 	STD_LOGIC_VECTOR(11 DOWNTO 0)	:= "000000000000";
+	signal latched_SDO	:  STD_LOGIC_VECTOR(11 DOWNTO 0);
+	
+	
+		-- creating an instance of the controller with a port map
 	ADC : LTC2308_ctrl
 	port map(
 		clk  => clk,
@@ -61,55 +75,40 @@ component LTC2308_ctrl
 		miso => miso
 	);
 	
-	
-	
-	-- declare signals from the component above
-	signal clk				:	STD_LOGIC;
-	signal nrst				:  STD_LOGIC;
-	signal start			:  STD_LOGIC;
-	signal busy				:  STD_LOGIC;
-	signal rx_data			:  STD_LOGIC_VECTOR(11 DOWNTO 0);
-	signal sclk				:  STD_LOGIC_VECTOR(11 DOWNTO 0);
-	signal conv				:  STD_LOGIC_VECTOR(11 DOWNTO 0);
-	signal mosi				:  STD_LOGIC_VECTOR(11 DOWNTO 0);
-	signal miso				:  STD_LOGIC_VECTOR(11 DOWNTO 0);
-	
-	-- create more signals based on what we need the peripheral to do
-	signal latched_SDI	: 	STD_LOGIC_VECTOR(11 DOWNTO 0)	:= "00000000000";
-	signal latched_SDO	:  STD_LOGIC_VECTOR(11 DOWNTO 0);
-	
 	-- if we try to read from it, then read the data
 	PROCESS(clk)
+	BEGIN
 		if rising_edge(clk) then
-			if id_addr = '00011000000' then
+			if io_addr = "00011000000" then
 				digitalRes <= latched_SDO;
 			end if;
 		end if;
-	BEGIN	
-	END
+	END PROCESS;
 	
 	
-	-- if we try to write to the peripheral, write data to latched_SDO
+	-- if we try to write to the peripheral, write data to latched_SDI
 	PROCESS(clk)
 	BEGIN
 		if rising_edge(clk) then
-			if io_addr = '00011000001' then
-				latched_SDI = io_data;
+			if io_addr = "00011000001" and io_write = '1' then
+				latched_SDI <= io_data;
 			end if;
 		end if;
-	END 
+	END PROCESS;
 	
 	
-	-- if busy flag is on, then start a new conversation and latched the previous values
-	PROCESS(clk, nrst, busy)
-		if rising_edge(clk) then
-			if busy = '0' then
-				latched_SDO <= miso if nrst = '1' else "00000000000";
-				mosi<= latched_SDI;
-				start = '1'
-			end if;
-		end if;
+	-- if busy flag is on, then start a new conversation and latch the previous values
+	PROCESS(clk, nrst)
 	BEGIN
-	
-	END
+		if nrst = '0' then
+			start <= '0';
+		elsif rising_edge(clk) then
+			if busy = '0' then
+				start <= '1';
+				latched_SDO <= rx_data;
+			else
+				start <= '0';
+			end if;
+		end if;
+	END PROCESS;
 END arch;
