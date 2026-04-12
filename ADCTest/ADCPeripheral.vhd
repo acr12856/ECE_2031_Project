@@ -28,7 +28,7 @@ ARCHITECTURE arch OF ADCPeripheral IS
 -- define the LTC_2308_ctrl file as a component of the peripheral
 component LTC2308_ctrl
 	generic(
-	CTRL_DIV : integer := 1
+	CLK_DIV : integer := 1
 	);
 	port (
 		-- define the same ports from LTC_2308_ctrl.vhd
@@ -42,7 +42,7 @@ component LTC2308_ctrl
 		-- SPI Physical Interface
 		sclk     : out std_logic; -- Serial clock
 		conv     : out std_logic; -- Conversion start control
-		mosi     : out std_logic; -- Data out from this device, in to ADC
+		mosi     : out std_logic := '0' ; -- Data out from this device, in to ADC
 		miso     : in  std_logic  -- Data out from ADC, in to this device
 	);
 	end component;
