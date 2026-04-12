@@ -61,6 +61,8 @@ component LTC2308_ctrl
 	signal latched_SDO	:  STD_LOGIC_VECTOR(11 DOWNTO 0);
 	
 	
+	BEGIN
+	
 		-- creating an instance of the controller with a port map
 	ADC : LTC2308_ctrl
 	port map(
