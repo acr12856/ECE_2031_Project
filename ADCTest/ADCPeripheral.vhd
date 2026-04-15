@@ -108,4 +108,8 @@ component LTC2308_ctrl
 			end if;
 		end if;
 	END PROCESS;
+<<<<<<< Updated upstream
 END arch;
+=======
+END arch;
+>>>>>>> Stashed changes
