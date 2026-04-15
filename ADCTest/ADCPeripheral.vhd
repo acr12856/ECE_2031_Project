@@ -16,10 +16,10 @@ entity ADCPeripheral IS
 	PORT(
 		io_addr 		: IN STD_LOGIC_VECTOR(10 DOWNTO 0); -- address
 		io_write		: IN STD_LOGIC; -- write enable to set SDI config
-		io_data 		: IN STD_LOGIC_VECTOR(11 DOWNTO 0); -- io_data config
+		io_data 		: INOUT STD_LOGIC_VECTOR(15 DOWNTO 0); -- io_data config
+		io_read		: IN STD_LOGIC; -- io read signal
 		nrst  		: IN STD_LOGIC; -- reset signal
-		clk	  		: IN STD_LOGIC; -- clock signal
-		digitalRes	: OUT STD_LOGIC_VECTOR(11 DOWNTO 0) -- resolution of the peripheral
+		clk	  		: IN STD_LOGIC -- clock signal
 	);
 END ADCPeripheral;
 
@@ -42,7 +42,7 @@ component LTC2308_ctrl
 		-- SPI Physical Interface
 		sclk     : out std_logic; -- Serial clock
 		conv     : out std_logic; -- Conversion start control
-		mosi     : out std_logic := '0' ; -- Data out from this device, in to ADC
+		mosi     : out std_logic; -- Data out from this device, in to ADC
 		miso     : in  std_logic  -- Data out from ADC, in to this device
 	);
 	end component;
@@ -78,14 +78,9 @@ component LTC2308_ctrl
 	);
 	
 	-- if we try to read from it, then read the data
-	PROCESS(clk)
-	BEGIN
-		if rising_edge(clk) then
-			if io_addr = "00011000000" then
-				digitalRes <= latched_SDO;
-			end if;
-		end if;
-	END PROCESS;
+	io_data <= "0000" & latched_SDO
+	when(io_read = '1' and io_addr = "00011000000")
+	else (others => 'Z');
 	
 	
 	-- if we try to write to the peripheral, write data to latched_SDI
@@ -93,7 +88,7 @@ component LTC2308_ctrl
 	BEGIN
 		if rising_edge(clk) then
 			if io_addr = "00011000001" and io_write = '1' then
-				latched_SDI <= io_data;
+				latched_SDI <= io_data(11 DOWNTO 0);
 			end if;
 		end if;
 	END PROCESS;
