@@ -23,7 +23,6 @@ entity LTC2308_ctrl is
 		clk      : in  std_logic;
 		nrst     : in  std_logic;
 		start    : in  std_logic;
-		tx_data  : in std_logic;
 		rx_data  : out std_logic_vector(11 downto 0);
 		busy     : out std_logic;
 		
@@ -53,7 +52,7 @@ architecture internals of LTC2308_ctrl is
 	
 	-- Internal signals for data shifting
 	-- The default value here is for a single-ended conversion on channel 0
-	signal tx_data : std_logic_vector(11 downto 0) := "100010000000";
+	constant tx_data : std_logic_vector(11 downto 0) := "100010000000";
 	signal tx_reg    : std_logic_vector(11 downto 0);
 	signal rx_reg    : std_logic_vector(11 downto 0);
 
