@@ -1,0 +1,48 @@
+WIDTH=16;
+DEPTH=2048;
+
+ADDRESS_RADIX=HEX;
+DATA_RADIX=HEX;
+
+CONTENT BEGIN
+0000: 0854; -- 	LOAD AllZeros
+0001: 9804; --     OUT Hex0 ; start with a clean sheet
+0002: 9805; --     OUT Hex1
+0003: 9000; --     IN Switches
+0004: 9801; --     OUT LEDs ;; light up lights above switches
+0005: 7800; --     JNZ WAITFORALLDOWN ;; keep looping if all switches aren't yet down
+0006: 9000; -- 	IN Switches
+0007: 1050; --     STORE Pattern
+0008: 9801; --     OUT LEDs
+0009: 98C0; --     OUT ADC
+000A: 90C0; -- 	IN ADC ;; get our ADC conversion value
+000B: 7806; --     JNZ ADCGOALSET ;; if they don't set ADC to 0 they arent sumbitting pattern
+000C: 9802; --     OUT Timer ;; reset clock i
+000D: 0850; -- 	LOAD Pattern
+000E: 9805; --     OUT Hex1
+000F: 0854; --     LOAD AllZeros
+0010: 3001; --     ADDI 1
+0011: 780D; -- 	JNZ PUTONHEXDISPLAY ;; GET RID OF THIS WHEN WE CONFIRM PATTERN SUBMISSION WORKS
+0012: 98C0; --     OUT ADC ;; -- Ideally this will trigger a conversion, and put the output jn AC reg
+0013: 90C0; --     IN ADC
+0014: 1053; --     STORE userInput
+0015: 0853; --     LOAD userInput
+0016: 2850; --     SUB Pattern
+0017: 9805; --     OUT Hex1 ;; show the difference on the hex display
+0018: 7812; --     JNZ TAKEDIALINPUT ;; try again if they didn't match it (exact match for this Proof of concept)
+0019: 9002; -- 	IN Timer
+001A: 9804; --     OUT HEX0
+001B: 0854; -- 	LOAD AllZeros
+001C: 701B; --     JZERO LOOP
+[001D..004F] : 0000; -- [empty memory]
+0050: 0000; -- 	Pattern:   DW 0
+0051: 0000; -- 	RandomValue: DW 0
+0052: 0000; --     moduloOutput: DW 0
+0053: 0000; --     UserInput: DW 0
+0054: 0000; --     AllZeros: DW &amp;B0000000000
+0055: 0000; --     totalScore: DW 0
+0056: 03E8; --     SUBMISSION_LENGTH: DW 1000 ; 1 second?
+0057: 0000; --     submissionStartTime: DW 0
+[0058..07FF] : 0000; -- [empty memory]
+END;
+
