@@ -41,7 +41,6 @@ component LTC2308_ctrl
 		clk      : in  std_logic;
 		nrst     : in  std_logic;
 		start    : in  std_logic;
-		tx_data  : in std_logic_vector(11 downto 0);
 		rx_data  : out std_logic_vector(11 downto 0);
 		busy     : out std_logic;
 		
