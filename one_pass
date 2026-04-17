@@ -18,18 +18,25 @@ CONTENT BEGIN
 000A: 90C0; -- 	IN ADC ;; get our ADC conversion value
 000B: 7806; --     JNZ ADCGOALSET ;; if they don't set ADC to 0 they arent sumbitting pattern
 000C: 9802; --     OUT Timer ;; reset clock i
-000D: 98C0; --     OUT ADC ;; -- Ideally this will trigger a conversion, and put the output jn AC reg
+000D: 98C0; --     OUT ADC ;; -- Ideally this will trigger a conversion
 000E: 90C0; --     IN ADC
 000F: 1053; --     STORE userInput
 0010: 0853; --     LOAD userInput
-0011: 2850; --     SUB Pattern
-0012: 9804; --     OUT Hex0 ;; show the difference on the hex display
-0013: 780D; --     JNZ TAKEDIALINPUT ;; try again if they didn't match it (exact match for this Proof of concept)
-0014: 9002; -- 	IN Timer
-0015: 9804; --     OUT Hex0
-0016: 0854; -- 	LOAD AllZeros
-0017: 7016; --     JZERO LOOP
-[0018..004F] : 0000; -- [empty memory]
+0011: 2850; --     SUB Pattern ;; get the difference between our value and the goal
+0012: 6014; --     JNEG MAKE_POSITIVE   ; If AC is negative, we need to flip it
+0013: 5817; --     JUMP CHECK_RANGE
+0014: 1058; --     STORE Temp    ; Save the negative difference
+0015: 1800; --     LOADI 0       ; AC = 0
+0016: 2858; --     SUB Temp      ; AC = 0 - (-Difference) = Positive Difference
+0017: 9804; --     OUT Hex0
+0018: 37F5; --     ADDI -11             ; AC = Distance - 11
+0019: 601B; --     JNEG WIN_STATE       ; If AC &lt; 0 (Distance was 0-10), they win!
+001A: 580D; --     JUMP TAKEDIALINPUT   ;try again
+001B: 9002; -- 	IN Timer
+001C: 9805; --     OUT Hex1
+001D: 0854; -- 	LOAD AllZeros
+001E: 701D; --     JZERO LOOP
+[001F..004F] : 0000; -- [empty memory]
 0050: 0000; -- 	Pattern:   DW 0
 0051: 0000; -- 	RandomValue: DW 0
 0052: 0000; --     moduloOutput: DW 0
@@ -38,6 +45,7 @@ CONTENT BEGIN
 0055: 0000; --     totalScore: DW 0
 0056: 03E8; --     SUBMISSION_LENGTH: DW 1000 ; 1 second?
 0057: 0000; --     submissionStartTime: DW 0
-[0058..07FF] : 0000; -- [empty memory]
+0058: 0000; --     Temp: DW 0
+[0059..07FF] : 0000; -- [empty memory]
 END;
 
