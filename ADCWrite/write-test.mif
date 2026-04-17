@@ -1,0 +1,22 @@
+WIDTH=16;
+DEPTH=2048;
+
+ADDRESS_RADIX=HEX;
+DATA_RADIX=HEX;
+
+CONTENT BEGIN
+0000: 080C; -- 	LOAD	ChIn
+0001: 98C1; -- 	OUT 	ADCWrite
+0002: 90C0; -- 	IN ADC
+0003: 90C0; -- 	IN     ADC
+0004: 9801; -- 	OUT    LEDs
+0005: 9804; -- 	OUT    Hex0
+0006: 1008; -- 	STORE  Pattern
+0007: 5803; -- 	JUMP   showValue
+0008: 0000; -- Pattern:   DW 0
+0009: 0001; -- Bit0:      DW &B0000000001
+000A: 0200; -- Bit9:      DW &B1000000000
+000B: 0004; -- Bit2:	   DW &B0000000100
+000C: 0900; -- ChIn: 	   DW &H0900
+[000D..07FF] : 0000; -- [empty memory]
+END;

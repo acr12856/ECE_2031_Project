@@ -1,0 +1,28 @@
+ORG 0
+	LOAD	ChIn
+	OUT 	ADCWrite
+	IN ADC
+showValue:
+	IN     ADC
+	OUT    LEDs
+	OUT    Hex0
+	STORE  Pattern
+	JUMP   showValue
+
+; Variables
+Pattern:   DW 0
+
+; Useful values
+Bit0:      DW &B0000000001
+Bit9:      DW &B1000000000
+Bit2:	   DW &B0000000100
+ChIn: 	   DW &H0C80
+
+; IO address constants
+Switches:  EQU 000
+LEDs:      EQU 001
+Timer:     EQU 002
+Hex0:      EQU 004
+Hex1:      EQU 005
+ADC:	   EQU 192
+ADCWrite:  EQU 193
