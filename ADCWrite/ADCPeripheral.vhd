@@ -90,7 +90,7 @@ component LTC2308_ctrl
 	PROCESS(clk)
 	BEGIN
 		if rising_edge(clk) then
-			if io_addr = "00011000001" and io_write = '1' then
+			if io_addr = "00011000000" and io_write = '1' then
 				latched_SDI <= io_data(11 DOWNTO 0);
 			end if;
 		end if;
