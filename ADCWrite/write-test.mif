@@ -5,82 +5,105 @@ ADDRESS_RADIX=HEX;
 DATA_RADIX=HEX;
 
 CONTENT BEGIN
-0000: 0855; -- LOAD ChIn2
-0001: 98C0; -- OUT ADC
-0002: 0852; --     LOAD AllZeros
-0003: 9804; --     OUT Hex0 ; start with a clean sheet
-0004: 9805; --     OUT Hex1
-0005: 9000; --     IN Switches
-0006: 9801; --     OUT LEDs ;; light up lights above switches
-0007: 7800; --     JNZ WAITFORALLDOWN ;; keep looping if all switches aren't yet down
-0008: 9000; -- IN Switches
-0009: 1050; --     STORE Pattern
-000A: 9801; --     OUT LEDs
-000B: 90C0; --     IN ADC
-000C: 9805; --     OUT Hex1
-000D: 2856; --     SUB fffmem
-000E: 6008; --     JNEG ADCGOALSET1
-000F: 9000; -- IN Switches
-0010: 1050; --     STORE Pattern
+0000: 0905; -- 	LOAD ChIn2
+0001: 98C0; -- 	OUT ADC
+0002: 0902; --     LOAD AllZeros
+0003: 1107; --     STORE numberOfGuesses
+0004: 9804; --     OUT Hex0 ; start with a clean sheet
+0005: 9805; --     OUT Hex1
+0006: 9000; --     IN Switches
+0007: 9801; --     OUT LEDs ;; light up lights above switches
+0008: 7800; --     JNZ WAITFORALLDOWN ;; keep looping if all switches aren't yet down
+0009: 9000; -- 	IN Switches
+000A: 1100; --     STORE Pattern
+000B: 9801; --     OUT LEDs
+000C: 90C0; --     IN ADC
+000D: 2906; --     SUB fffmem
+000E: 6009; --     JNEG ADCGOALSET1
+000F: 9000; -- 	IN Switches
+0010: 1100; --     STORE Pattern
 0011: 9801; --     OUT LEDs
 0012: 90C0; --     IN ADC
-0013: 9805; --     OUT Hex1
-0014: 37F0; --     ADDI -16 ;; to check if we're within 15 of 0
-0015: 680F; --     JPOS ADCGOALSET2 ;; if its negative we were &gt; 15 away
-0016: 0854; -- LOAD ChIn0
-0017: 98C0; -- OUT ADC
-0018: 90C0; --     IN ADC ;; get our value
-0019: 5012; --     SHIFT -2 ;; to match 10 bit resolution
-001A: 1051; --     STORE userInput
-001B: 9805; --     OUT Hex1 ;; debug, remove later
-001C: 9000; --     IN Switches
-001D: 9805; --     OUT Hex1 ;; debug
-001E: 7816; --     JNZ TAKEDIALINPUT ;; user didn't wish to submit, keep going
-001F: 5820; --     JUMP SUBMISSION
-0020: 0851; --     LOAD userInput ;; from ADC conversion
-0021: 2850; --     SUB Pattern ;; get the difference between our value and the goal
-0022: 6024; --     JNEG MAKE_POSITIVE   ; If AC is negative, we need to flip it
-0023: 5827; --     JUMP CHECK_RANGE
-0024: 1057; --     STORE Temp    ; Save the negative difference
-0025: 1800; --     LOADI 0       ; AC = 0
-0026: 2857; --     SUB Temp      ; AC = 0 - (-Difference) = Positive Difference
-0027: 9804; --     OUT Hex0 ; (AC = distance_from_target) =&gt; Hex0 Display
-0028: 37F5; --     ADDI -11             ; AC = Distance - 11
-0029: 6030; --     JNEG WIN_STATE       ; If AC &lt; 0 (Distance was 0-10), they win!
-002A: 582B; --     JUMP WRONG_GUESS
-002B: 0852; -- LOAD AllZeros
-002C: 9801; --     OUT LEDs
-002D: 9000; -- IN Switches
-002E: 702B; --     JZERO  WRONG_GUESS;;  wait for them to flick any switches up before exiting
-002F: 5816; --     JUMP TAKEDIALINPUT ;; ready to try again
-0030: 9002; -- IN Timer
-0031: 1059; --     STORE lastTimerBlink
-0032: 9805; --     OUT Hex1
-0033: 0853; --     LOAD AllOnes
+0013: 37F0; --     ADDI -16 ;; to check if we're within 15 of 0
+0014: 680F; --     JPOS ADCGOALSET2 ;; if its negative we were &gt; 15 away
+0015: 0904; --     LOAD ChIn0
+0016: 98C0; --     OUT ADC
+0017: 90C0; --     IN ADC ;; get our value
+0018: 5012; --     SHIFT -2 ;; to match 10 bit resolution
+0019: 9804; --     OUT Hex0 ;; just to show our value changing for the demo i guess
+001A: 1101; --     STORE userInput
+001B: 9000; --     IN Switches
+001C: 7815; --     JNZ TAKEDIALINPUT ;; user didn't wish to submit, keep going
+001D: 581E; --     JUMP SUBMISSION
+001E: 0907; -- 	LOAD numberOfGuesses
+001F: 3001; --     ADDI 1
+0020: 1107; --     STORE numberOfGuesses
+0021: 0901; --     LOAD userInput ;; from ADC conversion
+0022: 2900; --     SUB Pattern ;; get the difference between our value and the goal
+0023: 6025; --     JNEG MAKE_POSITIVE   ; If AC is negative, we need to flip it
+0024: 5828; --     JUMP CHECK_RANGE
+0025: 1108; --       STORE Temp    ; Save the negative difference
+0026: 1800; --       LOADI 0       ; AC = 0
+0027: 2908; --       SUB Temp      ; AC = 0 - (-Difference) = Positive Difference
+0028: 9804; --       OUT Hex0 ; (AC = distance_from_target) =&gt; Hex0 Display
+0029: 37F5; --       ADDI -11             ; AC = Distance - 11
+002A: 6031; --       JNEG WIN_STATE       ; If AC &lt; 0 (Distance was 0-10), they win!
+002B: 582C; --       JUMP WRONG_GUESS
+002C: 0902; --         LOAD AllZeros
+002D: 9801; --         OUT LEDs
+002E: 9000; --         IN Switches
+002F: 702C; --         JZERO  WRONG_GUESS;;  wait for them to flick any switches up before exiting
+0030: 5815; --         JUMP TAKEDIALINPUT ;; ready to try again
+0031: 0907; --     LOAD numberOfGuesses
+0032: 9805; --     OUT Hex1 ;; display how many guesses it took them to get it right
+0033: 0903; --     LOAD AllOnes
 0034: 9801; --     OUT LEDs
-0035: 9802; -- OUT Timer ;; reset to 0
-0036: 085A; --     LOAD blinkStatus
-0037: 4853; -- XOR AllOnes
-0038: 105A; --     STORE blinkStatus
-0039: 085A; --  LOAD blinkStatus
-003A: 9801; --       OUT LEDs
-003B: 9002; --       IN Timer
-003C: 285B; --       SUB Hella
-003D: 6039; --       JNEG FLASHON
-003E: 5835; --   JUMP LOOP
-[003F..004F] : 0000; -- [empty memory]
-0050: 0000; -- Pattern:   DW 0
-0051: 0000; --     userInput: DW 0
-0052: 0000; --     AllZeros: DW &amp;B0000000000
-0053: 03FF; --     AllOnes: DW &amp;B1111111111
-0054: 0880; --     ChIn0:   DW &amp;B100010000000
-0055: 0980; --     ChIn2:   DW &amp;B100110000000
-0056: 0FFF; --     fffmem: DW &amp;HFFF
-0057: 0000; --     Temp: DW 0
-0058: 0000; --     read_result_channel: DW 0
-0059: 0000; --     lastTimerBlink: DW 0
-005A: 0000; --     blinkStatus: DW &amp;B0000000000
-005B: 0002; --     Hella: DW 2
-[005C..07FF] : 0000; -- [empty memory]
+0035: 0905; --     LOAD ChIn2
+0036: 98C0; -- 	OUT ADC
+0037: 9802; -- 	OUT Timer ;; reset to 0
+0038: 090B; --     LOAD blinkStatus
+0039: 4903; -- 	XOR AllOnes
+003A: 110B; --     STORE blinkStatus
+003B: 090B; --  	LOAD blinkStatus
+003C: 9801; -- 	OUT LEDs
+003D: 90C0; -- 	IN ADC
+003E: 9804; -- 	OUT Hex0
+003F: 2906; -- 	SUB fffmem
+0040: 6846; -- 	JPOS LOOP2
+0041: 7046; -- 	JZERO LOOP2
+0042: 9002; --     IN Timer
+0043: 290C; --     SUB Hella
+0044: 603B; --     JNEG FLASH
+0045: 5837; --     JUMP LOOP1
+0046: 9802; -- 	OUT Timer ;; reset to 0
+0047: 090B; --     LOAD blinkStatus
+0048: 4903; -- 	XOR AllOnes
+0049: 110B; --     STORE blinkStatus
+004A: 090B; --     	LOAD blinkStatus
+004B: 9801; --         OUT LEDs
+004C: 90C0; --     	IN ADC
+004D: 9804; --     	OUT Hex0
+004E: 37F0; --     	ADDI -16 ;; to check if we're within 15 of 0
+004F: 6000; --     	JNEG WAITFORALLDOWN
+0050: 7000; --     	JZERO  WAITFORALLDOWN
+0051: 9002; --  		IN Timer
+0052: 290C; --       	SUB Hella
+0053: 604A; --       	JNEG FLASH2
+0054: 5846; --       	JUMP LOOP2
+[0055..00FF] : 0000; -- [empty memory]
+0100: 0000; -- 	Pattern:   DW 0
+0101: 0000; --     userInput: DW 0
+0102: 0000; --     AllZeros: DW &amp;B0000000000
+0103: 03FF; --     AllOnes: DW &amp;B1111111111
+0104: 0880; --     ChIn0:   DW &amp;B100010000000
+0105: 0980; --     ChIn2:   DW &amp;B100110000000
+0106: 0FFF; --     fffmem: DW &amp;HFFF
+0107: 0000; --     numberOfGuesses: DW 0
+0108: 0000; --     Temp: DW 0
+0109: 0000; --     read_result_channel: DW 0
+010A: 0000; --     lastTimerBlink: DW 0
+010B: 0000; --     blinkStatus: DW &amp;B0000000000
+010C: 0001; --     Hella: DW 1
+[010D..07FF] : 0000; -- [empty memory]
 END;
 
